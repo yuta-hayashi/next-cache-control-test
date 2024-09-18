@@ -16,21 +16,42 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Check cache-control
+Run `npm run build` to make it a production build, then `npm run start` to start the server.
 
-## Learn More
+Next, check the response headers using curl.
 
-To learn more about Next.js, take a look at the following resources:
+### next 14.2.12
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Static pages have Cache-Control.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+curl --head http://localhost:3000/static 
+HTTP/1.1 200 OK
+Vary: RSC, Next-Router-State-Tree, Next-Router-Prefetch, Accept-Encoding
+x-nextjs-cache: HIT
+X-Powered-By: Next.js
+Cache-Control: s-maxage=31536000, stale-while-revalidate
+ETag: "6n9vqgt9za41s"
+Content-Type: text/html; charset=utf-8
+Content-Length: 5257
+Date: Wed, 18 Sep 2024 11:13:25 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+```
 
-## Deploy on Vercel
+Dynamic pages have no Cache-Control.
+Is it correct??
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+curl --head http://localhost:3000/dynamic
+HTTP/1.1 200 OK
+Vary: RSC, Next-Router-State-Tree, Next-Router-Prefetch, Accept-Encoding
+link: </_next/static/media/4473ecc91f70f139-s.p.woff>; rel=preload; as="font"; crossorigin=""; type="font/woff", </_next/static/media/463dafcda517f24f-s.p.woff>; rel=preload; as="font"; crossorigin=""; type="font/woff"
+X-Powered-By: Next.js
+Content-Type: text/html; charset=utf-8
+Date: Wed, 18 Sep 2024 11:13:18 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+```
